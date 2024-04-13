@@ -31,8 +31,6 @@ jobs:
         
         yes | sdkmanager --sdk_root=/home/runner/android "platforms;android-34" "build-tools;34.0.0" "ndk;26.2.11394342"
 
-        find /home/runner/android
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
