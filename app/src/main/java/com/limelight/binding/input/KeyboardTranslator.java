@@ -20,7 +20,13 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
      * GFE's prefix for every key code
      */
     private static final short KEY_PREFIX = (short) 0x80;
-    
+
+    /**
+     * Linux evdev scancode for the ISO 102nd key (KEY_102ND), the key between
+     * Left Shift and Z on non-US keyboards.
+     */
+    private static final int LINUX_KEY_102ND = 86;
+
     public static final int VK_0 = 48;
     public static final int VK_9 = 57;
     public static final int VK_A = 65;
@@ -54,6 +60,7 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
     public static final int VK_BACK_QUOTE = 192;
     public static final int VK_QUOTE = 222;
     public static final int VK_PAUSE = 19;
+    public static final int VK_OEM_102 = 0xE2;
 
     private static class KeyboardMapping {
         private final InputDevice device;
@@ -124,10 +131,20 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
      * Translates the given keycode and returns the GFE keycode
      * @param keycode the code to be translated
      * @param deviceId InputDevice.getId() or -1 if unknown
+     * @param scanCode KeyEvent.getScanCode() or 0 if unknown
      * @return a GFE keycode for the given keycode
      */
-    public short translate(int keycode, int deviceId) {
+    public short translate(int keycode, int deviceId, int scanCode) {
         int translated;
+
+        // The ISO 102nd key and the backslash key both report KEYCODE_BACKSLASH
+        // on Android, so they can only be told apart by hardware scancode.
+        // Without this, the 102nd key would be sent as VK_OEM_5 and produce the
+        // wrong character on the host (e.g. '#' instead of '<' on a German
+        // layout, which also breaks AltGr '|' on that key).
+        if (scanCode == LINUX_KEY_102ND) {
+            return (short) ((KEY_PREFIX << 8) | VK_OEM_102);
+        }
 
         // If a device ID was provided, look up the keyboard mapping
         if (deviceId >= 0) {
