@@ -16,6 +16,13 @@ public class KeyboardAccessibilityService extends AccessibilityService {
         int action = event.getAction();
         int keyCode = event.getKeyCode();
 
+        LimeLog.info("KeyboardAccessibilityService: keyCode=" + keyCode
+                + " (" + KeyEvent.keyCodeToString(keyCode) + ")"
+                + " scanCode=" + event.getScanCode()
+                + " action=" + action
+                + " deviceId=" + event.getDeviceId()
+                + " metaState=0x" + Integer.toHexString(event.getMetaState()));
+
         if (Game.instance != null && Game.instance.isConnected() && !BLACKLISTED_KEYS.contains(keyCode)) {
             // Preventing default will disable shortcut actions like alt+tab and etc.
             if (action == KeyEvent.ACTION_DOWN) {
