@@ -7,6 +7,10 @@
 # Nix build symlinks
 result
 result-*
+
+# Local signing key (never commit secrets)
+release.keystore
+keystore.env
 output.json
 output-metadata.json
 out/
