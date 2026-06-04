@@ -1398,7 +1398,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             byte modifier = getModifierState(event);
             if (event.getKeyCode() == KeyEvent.KEYCODE_ALT_RIGHT) {
                 LimeLog.info("AltGr DOWN: injecting synthetic VK_LCONTROL keydown");
-                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_DOWN, modifier, 0);
+                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_DOWN, modifier, (byte) 0);
             }
             LimeLog.info("sendKeyboardInput DOWN: keyCode=" + event.getKeyCode()
                     + " (" + KeyEvent.keyCodeToString(event.getKeyCode()) + ")"
@@ -1483,7 +1483,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             // Release the synthetic LCtrl that paired with RAlt for AltGr.
             if (event.getKeyCode() == KeyEvent.KEYCODE_ALT_RIGHT) {
                 LimeLog.info("AltGr UP: releasing synthetic VK_LCONTROL");
-                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_UP, modifierUp, 0);
+                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_UP, modifierUp, (byte) 0);
             }
         }
 
