@@ -1321,6 +1321,13 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             // The host protocol has a single US =/+ virtual key, so Android's semantic plus key needs Shift.
             modifier |= KeyboardPacket.MODIFIER_SHIFT;
         }
+        // AltGr on non-US layouts (e.g. German) is the right Alt key. Windows
+        // treats AltGr as Ctrl+Alt to produce |, ~, @, {, €, etc. Synthesize
+        // the Ctrl bit when right Alt is held so the host engages AltGr even
+        // if Sunshine/GFE does not translate RAlt to AltGr on its own.
+        if ((event.getMetaState() & KeyEvent.META_ALT_RIGHT_ON) != 0) {
+            modifier |= KeyboardPacket.MODIFIER_CTRL;
+        }
         return modifier;
     }
 
