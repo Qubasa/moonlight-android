@@ -69,9 +69,10 @@ public class PreferenceConfiguration {
     private static final String GAMEPAD_MOTION_SENSORS_PREF_STRING = "checkbox_gamepad_motion_sensors";
     private static final String GAMEPAD_MOTION_FALLBACK_PREF_STRING = "checkbox_gamepad_motion_fallback";
 
-    static final String DEFAULT_RESOLUTION = "1280x720";
+    static final String DEFAULT_RESOLUTION = "1920x1080";
     static final String DEFAULT_FPS = "60";
-    private static final boolean DEFAULT_STRETCH = false;
+    static final int DEFAULT_BITRATE = 30000;
+    private static final boolean DEFAULT_STRETCH = true;
     private static final boolean DEFAULT_SOPS = true;
     private static final boolean DEFAULT_DISABLE_TOASTS = false;
     private static final boolean DEFAULT_HOST_AUDIO = false;
@@ -340,10 +341,7 @@ public class PreferenceConfiguration {
     }
 
     public static int getDefaultBitrate(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return getDefaultBitrate(
-                prefs.getString(RESOLUTION_PREF_STRING, DEFAULT_RESOLUTION),
-                prefs.getString(FPS_PREF_STRING, DEFAULT_FPS));
+        return DEFAULT_BITRATE;
     }
 
     private static FormatOption getVideoFormatValue(Context context) {
