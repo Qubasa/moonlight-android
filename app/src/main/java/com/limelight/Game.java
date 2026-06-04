@@ -1391,6 +1391,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 return true;
             }
 
+            // AltGr emulation: Windows engages the AltGr (third) level only when
+            // LCtrl + RAlt are both held. Some hosts do not promote RAlt alone
+            // to AltGr, leaving |, ~, @, {, } broken on non-US layouts. Inject
+            // a literal LCtrl keydown alongside RAlt so AltGr engages.
+            if (event.getKeyCode() == KeyEvent.KEYCODE_ALT_RIGHT) {
+                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_DOWN, getModifierState(event), 0);
+            }
+
             conn.sendKeyboardInput(translated, KeyboardPacket.KEY_DOWN, getModifierState(event),
                     keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
         }
@@ -1457,6 +1465,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
             conn.sendKeyboardInput(translated, KeyboardPacket.KEY_UP, getModifierState(event),
                     keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+
+            // Release the synthetic LCtrl that paired with RAlt for AltGr.
+            if (event.getKeyCode() == KeyEvent.KEYCODE_ALT_RIGHT) {
+                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_UP, getModifierState(event), 0);
+            }
         }
 
         return true;
