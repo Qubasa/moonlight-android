@@ -1302,13 +1302,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         if (event.isMetaPressed()) {
             modifier |= KeyboardPacket.MODIFIER_META;
         }
-        // AltGr on non-US layouts (e.g. German) is the right Alt key. Windows
-        // treats AltGr as Ctrl+Alt to produce |, ~, @, {, €, etc. Synthesize
-        // the Ctrl bit when right Alt is held so the host engages AltGr even
-        // if Sunshine/GFE does not translate RAlt to AltGr on its own.
-        if ((event.getMetaState() & KeyEvent.META_ALT_RIGHT_ON) != 0) {
-            modifier |= KeyboardPacket.MODIFIER_CTRL;
-        }
         return modifier;
     }
 
@@ -1391,22 +1384,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 return true;
             }
 
-            // AltGr emulation: Windows engages the AltGr (third) level only when
-            // LCtrl + RAlt are both held. Some hosts do not promote RAlt alone
-            // to AltGr, leaving |, ~, @, {, } broken on non-US layouts. Inject
-            // a literal LCtrl keydown alongside RAlt so AltGr engages.
-            byte modifier = getModifierState(event);
-            if (event.getKeyCode() == KeyEvent.KEYCODE_ALT_RIGHT) {
-                LimeLog.info("AltGr DOWN: injecting synthetic VK_LCONTROL keydown");
-                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_DOWN, modifier, (byte) 0);
-            }
-            LimeLog.info("sendKeyboardInput DOWN: keyCode=" + event.getKeyCode()
-                    + " (" + KeyEvent.keyCodeToString(event.getKeyCode()) + ")"
-                    + " scanCode=" + event.getScanCode()
-                    + " metaState=0x" + Integer.toHexString(event.getMetaState())
-                    + " modifier=0x" + Integer.toHexString(modifier & 0xFF)
-                    + " translated=0x" + Integer.toHexString(translated & 0xFFFF));
-            conn.sendKeyboardInput(translated, KeyboardPacket.KEY_DOWN, modifier,
+            conn.sendKeyboardInput(translated, KeyboardPacket.KEY_DOWN, getModifierState(event),
                     keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
         }
 
@@ -1470,21 +1448,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 return (unicodeChar & KeyCharacterMap.COMBINING_ACCENT) == 0 && (unicodeChar & KeyCharacterMap.COMBINING_ACCENT_MASK) != 0;
             }
 
-            byte modifierUp = getModifierState(event);
-            LimeLog.info("sendKeyboardInput UP: keyCode=" + event.getKeyCode()
-                    + " (" + KeyEvent.keyCodeToString(event.getKeyCode()) + ")"
-                    + " scanCode=" + event.getScanCode()
-                    + " metaState=0x" + Integer.toHexString(event.getMetaState())
-                    + " modifier=0x" + Integer.toHexString(modifierUp & 0xFF)
-                    + " translated=0x" + Integer.toHexString(translated & 0xFFFF));
-            conn.sendKeyboardInput(translated, KeyboardPacket.KEY_UP, modifierUp,
+            conn.sendKeyboardInput(translated, KeyboardPacket.KEY_UP, getModifierState(event),
                     keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
-
-            // Release the synthetic LCtrl that paired with RAlt for AltGr.
-            if (event.getKeyCode() == KeyEvent.KEYCODE_ALT_RIGHT) {
-                LimeLog.info("AltGr UP: releasing synthetic VK_LCONTROL");
-                conn.sendKeyboardInput((short) ((0x80 << 8) | 0xA2), KeyboardPacket.KEY_UP, modifierUp, (byte) 0);
-            }
         }
 
         return true;
