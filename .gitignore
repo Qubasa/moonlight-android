@@ -1,7 +1,12 @@
 # built application files
 *.apk
+*.apk.idsig
 *.ap_
 *.aab
+
+# Nix build symlinks
+result
+result-*
 output.json
 output-metadata.json
 out/
